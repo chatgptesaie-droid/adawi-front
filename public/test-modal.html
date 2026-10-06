@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal ViewOrder</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #3b82f6;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #f3f4f6;
+        }
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 32rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .close-btn:hover {
+            color: #374151;
+        }
+        .order-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .detail-label {
+            color: #6b7280;
+        }
+        .detail-value {
+            font-weight: 500;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-delivered {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .test-info {
+            background-color: #e0f2fe;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0288d1;
+        }
+        .success {
+            background-color: #e8f5e8;
+            border-left-color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Simulation des données de commande
+        const mockOrders = [
+            {
+                id: "ORD-001",
+                user_id: "user123",
+                status: "livré",
+                payment_status: "payé",
+                payment_method: "Carte bancaire",
+                delivery_method: "Livraison standard",
+                delivery_status: "livré",
+                total: 75000,
+                created_at: "2024-01-15T10:30:00Z",
+                updated_at: "2024-01-16T14:20:00Z",
+                items: [
+                    {
+                        product_id: "PROD-001",
+                        name: "Chemise élégante",
+                        quantity: 2,
+                        size: "M",
+                        color: "Bleu",
+                        price: 25000
+                    },
+                    {
+                        product_id: "PROD-002", 
+                        name: "Pantalon classique",
+                        quantity: 1,
+                        size: "L",
+                        color: "Noir",
+                        price: 25000
+                    }
+                ],
+                address: {
+                    street: "123 Rue de la Paix",
+                    city: "Lomé",
+                    postal_code: "01BP123",
+                    country: "Togo",
+                    phone: "+228 90 12 34 56"
+                }
+            },
+            {
+                id: "ORD-002",
+                user_id: "user456",
+                status: "en_cours",
+                payment_status: "payé",
+                payment_method: "Mobile Money",
+                delivery_method: "Livraison express",
+                delivery_status: "en_transit",
+                total: 45000,
+                created_at: "2024-01-16T09:15:00Z",
+                updated_at: "2024-01-16T09:15:00Z",
+                items: [
+                    {
+                        product_id: "PROD-003",
+                        name: "Robe de soirée",
+                        quantity: 1,
+                        size: "S",
+                        color: "Rouge",
+                        price: 45000
+                    }
+                ],
+                address: {
+                    street: "456 Avenue des Cocotiers",
+                    city: "Kara",
+                    postal_code: "02BP456",
+                    country: "Togo",
+                    phone: "+228 91 23 45 67"
+                }
+            }
+        ];
+
+        // Composant Modal simplifié
+        function ViewOrderModal({ isOpen, orderId, onClose }) {
+            const [order, setOrder] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                console.log("Modal useEffect triggered:", { isOpen, orderId });
+                if (!isOpen || !orderId) return;
+
+                setLoading(true);
+                setError(null);
+                setOrder(null);
+
+                // Simulation d'un appel API
+                setTimeout(() => {
+                    const foundOrder = mockOrders.find(o => o.id === orderId);
+                    if (foundOrder) {
+                        setOrder(foundOrder);
+                        console.log("Order loaded:", foundOrder);
+                    } else {
+                        setError("Commande non trouvée");
+                    }
+                    setLoading(false);
+                }, 500);
+            }, [isOpen, orderId]);
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="modal">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h2 className="modal-title">Détails de la commande</h2>
+                            <button onClick={onClose} className="close-btn">✕</button>
+                        </div>
+
+                        {loading && <p>Chargement...</p>}
+                        {error && <p style={{color: 'red'}}>{error}</p>}
+
+                        {!loading && !error && order && (
+                            <div>
+                                <div className="order-details">
+                                    <div className="detail-item">
+                                        <span className="detail-label">ID :</span>
+                                        <span className="detail-value">{order.id}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="detail-label">Utilisateur :</span>
+                                        <span className="detail-value">{order.user_id}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="detail-label">Statut :</span>
+                                        <span className={`status-badge ${order.status === 'livré' ? 'status-delivered' : order.status === 'en_cours' ? 'status-pending' : 'status-cancelled'}`}>
+                                            {order.status}
+                                        </span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="detail-label">Total :</span>
+                                        <span className="detail-value">{order.total} F CFA</span>
+                                    </div>
+                                </div>
+
+                                <h3>Articles</h3>
+                                {order.items.map((item, i) => (
+                                    <div key={i} style={{padding: '8px', border: '1px solid #ddd', marginBottom: '8px', borderRadius: '4px'}}>
+                                        <div><strong>{item.name}</strong></div>
+                                        <div style={{color: '#666', fontSize: '14px'}}>
+                                            Qté: {item.quantity} • Taille: {item.size} • Couleur: {item.color} • {item.price} F CFA
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div style={{marginTop: '24px', textAlign: 'right'}}>
+                            <button onClick={onClose} style={{padding: '8px 16px', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer'}}>
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Composant principal de test
+        function TestApp() {
+            const [selectedOrder, setSelectedOrder] = useState(null);
+            const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+            const [testResults, setTestResults] = useState([]);
+
+            const openViewModal = (order) => {
+                console.log("openViewModal called with order:", order.id);
+                setSelectedOrder(order);
+                setIsViewModalOpen(true);
+                
+                // Enregistrer le test
+                setTestResults(prev => [...prev, {
+                    test: `Ouverture modal pour commande ${order.id}`,
+                    status: 'success',
+                    time: new Date().toLocaleTimeString()
+                }]);
+            };
+
+            const closeModal = () => {
+                console.log("Modal closed");
+                setIsViewModalOpen(false);
+                setSelectedOrder(null);
+                
+                // Enregistrer le test
+                setTestResults(prev => [...prev, {
+                    test: 'Fermeture du modal',
+                    status: 'success', 
+                    time: new Date().toLocaleTimeString()
+                }]);
+            };
+
+            return (
+                <div className="container">
+                    <div className="test-info success">
+                        <h2> Test du Modal ViewOrder - Correction Appliquée</h2>
+                        <p><strong>Problème résolu :</strong> Le modal est maintenant rendu inconditionnellement et contrôlé par la prop <code>isOpen</code></p>
+                        <p><strong>Changement :</strong> Suppression de la condition <code>{`{selectedOrder && (...)}`}</code> qui empêchait le rendu du modal</p>
+                    </div>
+
+                    <h3>Commandes de test</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Statut</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {mockOrders.map(order => (
+                                <tr key={order.id}>
+                                    <td>{order.id}</td>
+                                    <td>
+                                        <span className={`status-badge ${order.status === 'livré' ? 'status-delivered' : 'status-pending'}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td>{order.total} F CFA</td>
+                                    <td>
+                                        <button 
+                                            onClick={() => openViewModal(order)} 
+                                            className="btn"
+                                            title="Voir les détails"
+                                        >
+                                             Voir
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {testResults.length > 0 && (
+                        <div style={{marginTop: '20px'}}>
+                            <h3>Résultats des tests</h3>
+                            {testResults.map((result, i) => (
+                                <div key={i} style={{padding: '8px', backgroundColor: '#e8f5e8', margin: '4px 0', borderRadius: '4px'}}>
+                                     {result.test} - {result.time}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Le modal est maintenant toujours rendu, contrôlé par isOpen */}
+                    <ViewOrderModal
+                        isOpen={isViewModalOpen}
+                        onClose={closeModal}
+                        orderId={selectedOrder?.id || null}
+                    />
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TestApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

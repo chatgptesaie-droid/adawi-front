@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Produits</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; background: #ffe6e6; padding: 10px; border-radius: 5px; margin: 5px 0; }
+        .success { color: green; background: #e6ffe6; padding: 10px; border-radius: 5px; margin: 5px 0; }
+        .loading { color: blue; margin: 5px 0; }
+        .warning { color: orange; background: #fff3cd; padding: 10px; border-radius: 5px; margin: 5px 0; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .login-section { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 3px; }
+        .status { font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test de l'API Produits Vendeur</h1>
+    
+    <!-- Section de connexion -->
+    <div class="login-section">
+        <h3> Authentification</h3>
+        <div>
+            <input type="email" id="email" placeholder="Email" value="vendeur10@example.com">
+            <input type="password" id="password" placeholder="Mot de passe" value="vendeur10">
+            <button class="btn-primary" onclick="login()">Se connecter</button>
+            <button class="btn-secondary" onclick="logout()">Se déconnecter</button>
+        </div>
+        <div id="authStatus" class="status"> Non connecté</div>
+    </div>
+    
+    <!-- Section de tests -->
+    <div>
+        <h3> Tests API</h3>
+        <button class="btn-success" onclick="testDirectAPI()">Test API Direct (avec auth)</button>
+        <button class="btn-success" onclick="testViaRemixAPI()">Test via Remix API</button>
+        <button class="btn-secondary" onclick="testRemixRoute()">Test Route Remix</button>
+        <button class="btn-danger" onclick="clearResults()">Effacer</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        let authToken = null;
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function updateAuthStatus(isAuthenticated, userInfo = null) {
+            const statusDiv = document.getElementById('authStatus');
+            if (isAuthenticated) {
+                statusDiv.innerHTML = ` Connecté${userInfo ? ` - ${userInfo.email} (${userInfo.role})` : ''}`;
+                statusDiv.className = 'status success';
+            } else {
+                statusDiv.innerHTML = ' Non connecté';
+                statusDiv.className = 'status error';
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                log(' Veuillez remplir email et mot de passe', 'error');
+                return;
+            }
+            
+            log(' Tentative de connexion...', 'loading');
+            
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                log(` Statut de connexion: ${response.status}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(` Erreur de connexion: ${errorText}`, 'error');
+                    updateAuthStatus(false);
+                    return;
+                }
+                
+                const data = await response.json();
+                authToken = data.access_token;
+                
+                log(' Connexion réussie!', 'success');
+                log(` Token reçu: ${authToken ? 'Oui' : 'Non'}`);
+                
+                // Récupérer les infos utilisateur
+                await getUserInfo();
+                
+            } catch (error) {
+                log(` Erreur lors de la connexion: ${error.message}`, 'error');
+                updateAuthStatus(false);
+            }
+        }
+        
+        async function getUserInfo() {
+            if (!authToken) {
+                log(' Pas de token disponible', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    log(` Utilisateur: ${userInfo.email} (${userInfo.role})`, 'success');
+                    updateAuthStatus(true, userInfo);
+                } else {
+                    log(' Impossible de récupérer les infos utilisateur', 'error');
+                    updateAuthStatus(true);
+                }
+                
+            } catch (error) {
+                log(` Erreur infos utilisateur: ${error.message}`, 'error');
+                updateAuthStatus(true);
+            }
+        }
+        
+        function logout() {
+            authToken = null;
+            updateAuthStatus(false);
+            log(' Déconnexion effectuée', 'warning');
+        }
+
+        async function testDirectAPI() {
+            if (!authToken) {
+                log(' Veuillez vous connecter d\'abord', 'error');
+                return;
+            }
+            
+            log(' Test direct de l\'API backend avec authentification...', 'loading');
+            
+            try {
+                const response = await fetch('http://localhost:8000/products/vendor/my-products', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                log(` Statut: ${response.status} ${response.statusText}`);
+                
+                const text = await response.text();
+                log(` Réponse (${text.length} caractères):`);
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(text);
+                        log(` API accessible - ${Array.isArray(data) ? data.length : 'Format non-array'} produits`, 'success');
+                        log(`<pre>${JSON.stringify(data, null, 2).substring(0, 1000)}${JSON.stringify(data, null, 2).length > 1000 ? '...' : ''}</pre>`);
+                    } catch (parseError) {
+                        log(` Erreur de parsing JSON: ${parseError.message}`, 'error');
+                        log(`<pre>${text.substring(0, 500)}...</pre>`);
+                    }
+                } else {
+                    log(` Erreur API: ${response.status}`, 'error');
+                    log(`<pre>${text.substring(0, 500)}...</pre>`);
+                }
+                
+            } catch (error) {
+                log(` Erreur de connexion: ${error.message}`, 'error');
+            }
+        }
+
+        async function testViaRemixAPI() {
+            log(' Test via l\'API Remix...', 'loading');
+            
+            try {
+                const response = await fetch('/api/products/vendor?skip=0&limit=20', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(` Statut Remix: ${response.status} ${response.statusText}`);
+                log(` Content-Type: ${response.headers.get('content-type')}`);
+                
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    log(` Réponse Remix (JSON):`);
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                    
+                    if (data.success) {
+                        log(` ${data.products?.length || 0} produits récupérés`, 'success');
+                    } else {
+                        log(` Erreur: ${data.error}`, 'error');
+                        if (data.details) {
+                            log(` Détails: ${data.details}`, 'error');
+                        }
+                    }
+                } else {
+                    // Probablement du HTML (page d'erreur)
+                    const text = await response.text();
+                    log(` Réponse Remix (HTML/Text):`);
+                    log(`<pre>${text.substring(0, 1000)}${text.length > 1000 ? '...' : ''}</pre>`);
+                    log(` Réponse non-JSON reçue (probablement une page d'erreur)`, 'error');
+                }
+                
+            } catch (error) {
+                log(` Erreur Remix: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRemixRoute() {
+            log(' Test de la route Remix (vérification d\'existence)...', 'loading');
+            
+            try {
+                // Test avec différentes méthodes pour diagnostiquer
+                const methods = ['GET', 'POST', 'OPTIONS'];
+                
+                for (const method of methods) {
+                    try {
+                        const response = await fetch('/api/products/vendor', {
+                            method: method,
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        log(` ${method} /api/products/vendor: ${response.status} ${response.statusText}`);
+                        
+                        if (method === 'GET' && response.status !== 404) {
+                            const contentType = response.headers.get('content-type');
+                            log(` Content-Type: ${contentType}`);
+                            break;
+                        }
+                    } catch (error) {
+                        log(` ${method} failed: ${error.message}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                log(` Erreur test route: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-login au chargement de la page si les credentials sont pré-remplis
+        window.addEventListener('load', () => {
+            log(' Page chargée - Prêt pour les tests', 'success');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+CAHIER DES CHARGES
+Nom de l’entreprise : NEW BRAIN FACTORY
+Nom du projet : Plateforme de Freelancing
+Personne à contacter : M. KPELOU
+Adresse : Agbalépédo
+Téléphone : 93 29 22 48
+Email : newbrain02@gmail.com
+SOMMAIRE :
+I. Présentation de l’entreprise : ................................... 3
+II. Réalisation du projet : .............................................. 3
+III. L’arborescence :...................................................... 4
+IV. Fonctionnalités : ....................................................... 5
+V. Technologie et Outils : .............................................. 8
+VI. Planning prévisionnel : ........................................... 8
+I. Présentation de l’entreprise :
+Entreprise Informatique au TOGO NEW BRAIN FACTORY, est une entreprise de services en
+Ingénierie Informatique basée à Lomé qui a pour but de promouvoir les TICs comme
+moyen de développement de l'entrepreneuriat. NEW BRAIN FACTORY est spécialisée
+dans les domaines du développement web, de l'hébergement web, de l’info graphisme,
+de la maintenance informatique, la reprographie et le E-marketing en apportant des
+services innovants répondant aux attentes et objectifs spécifiques de différentes
+catégories d'entreprises. Notre vision est de simplifier et d’optimiser le quotidien des
+populations et de nos clients en leur proposant des services et produits de qualités afin
+d’assurer une efficacité des services informatiques et d'augmenter l'intérêt des jeunes
+pour les TICs.
+II. Réalisation du projet :
+1. Contexte général :
+Le marché du travail indépendant connaît une croissance significative, avec une demande
+croissante pour des solutions digitales permettant aux entreprises de trouver des
+compétences spécifiques et aux freelances de valoriser leur expertise. Cependant, les
+plateformes existantes souffrent souvent de complexités inutiles, notamment des systèmes
+de messagerie intégrés qui alourdissent l'expérience utilisateur. Une solution simplifiée,
+centrée sur la mise en relation directe via des canaux externes après validation mutuelle,
+répondrait mieux aux besoins du marché local togolais et africain.
+2. Problématique :
+Comment concevoir une plateforme intuitive permettant aux clients de publier des annonces
+par catégorie et aux freelances de postuler, tout en automatisant les notifications par email
+et en sécurisant les échanges via un système de validation préalable avant partage des
+coordonnées, sans intégrer de messagerie interne superflue ?
+3. Objectif :
+Développer une plateforme web de freelancing permettant aux entreprises de publier des
+annonces par catégorie et aux travailleurs indépendants de postuler, avec un système
+automatisé de notifications par email et une mise en relation sécurisée via les réseaux
+sociaux après validation des candidatures.
+III. L’arborescence :
+RUBRIQUE SOUS-RUBRIQUE DESCRIPTIF
+Authentification Connexion /
+Inscription
+Connexion (email/mdp),
+inscription avec choix rôle
+(Client/Freelance/Admin)
+Sécurité Mot de passe oublié, double
+authentification (2FA) optionnelle
+Tableau de bord Client Statistiques : annonces,
+candidatures, dépenses. Accès
+rapide
+Freelance Statistiques : candidatures
+envoyées, contrats en cours,
+revenus
+Admin KPIs globaux (utilisateurs,
+transactions, commission), litiges
+actifs
+Annonces (Client) Création Titre, description, budget, délai,
+compétences, fichiers
+Gestion Modifier, mettre en pause,
+dupliquer, clore, supprimer
+Candidatures Freelance Explorer (recherche + filtres),
+postuler (message + prix), suivi
+statut
+Client Voir candidatures reçues,
+accepter/refuser, contre-proposer
+Contrats & livrables Contrat Génération automatique après
+acceptation
+Livrable Dépôt de fichier, validation client,
+rejet motivé, versionning
+Messagerie Chat Temps réel (WebSockets), partage
+de fichiers, historique par contrat
+Paiements Client Dépôt de fonds, paiement
+séquestre (blocage jusqu’à
+validation)
+Freelance Réception paiement, demande
+retrait (virement/Mobile Money)
+Système Prélèvement
+automatique
+commission,
+factures PDF
+Réputation Notation Client note freelance et
+inversement (étoiles +
+commentaire)
+Badges "Freelance de confiance", "Client
+rapide" (automatiques)
+Profils Freelance Bio, compétences, portfolio,
+tarifs, certifications, liens vérifiés
+Client Profil public : présentation,
+annonces publiées, note
+moyenne
+Modération & litiges Signalement Annonce, message ou profil
+inapproprié
+Litige Ouverture → gel fonds →
+arbitrage admin → décision finale
+Admin Actions : avertissement,
+suspension, bannissement
+Notifications Alertes Candidature reçue, message,
+validation livrable, paiement
+Canaux Centre notifications, push, email
+(paramétrable)
+Sécurité & backup Sécurité Contrôle accès (RBAC), journal
+activités, conformité RGPD
+Backup Sauvegarde automatique
+quotidienne, restauration
+possible
+IV. Fonctionnalités :
+MODULE FONCTIONNALITÉ DESCRIPTIF
+Authentification Inscription / Connexion Créer un compte (Client
+ou Freelance) et
+s’authentifier
+Double authentification (Optionnel) Code
+temporaire pour
+sécuriser l’accès
+Annonces Publier une annonce Formulaire : titre,
+description, budget,
+délai, compétences
+Gérer ses annonces Modifier, mettre en
+pause, dupliquer, clore,
+supprimer
+Candidatures Explorer les annonces Recherche par mots-clés
++ filtres (budget,
+compétence, date)
+Postuler Envoyer message
+personnalisé + prix
+proposé + délai
+Suivi candidatures Statut : envoyée, lue,
+acceptée, refusée
+Gérer les candidatures
+(Client)
+Voir, accepter, refuser,
+faire une contre-
+proposition
+Contrats & livrables Contrat automatique Généré après
+acceptation (date,
+montant, périmètre)
+Déposer un livrable Upload fichier (code,
+design, document)
+Valider / rejeter Client valide →
+déblocage paiement.
+Rejet → modification
+Messagerie Chat temps réel Discussion instantanée
+avec partage de fichiers
+Paiements Déposer des fonds
+(Client)
+Alimenter son
+portefeuille (carte,
+Mobile Money)
+Paiement séquestre Fonds bloqués jusqu’à
+validation du livrable
+Recevoir (Freelance) Déblocage automatique
+après validation client
+Demander un retrait Virement bancaire ou
+Mobile Money
+Commission Prélèvement
+automatique (ex: 10%)
+sur chaque paiement
+Factures Téléchargement PDF de
+chaque transaction
+Réputation Noter Client note freelance et
+freelance note client
+(étoiles + avis)
+Badges automatiques "Freelance rapide",
+"Client fiable" (basés sur
+historique)
+Profils Gérer profil (Freelance) Bio, compétences,
+portfolio, tarifs,
+certifications
+Profil public (Client) Présentation, annonces
+publiées, note moyenne
+Modération Signaler Annonce, message ou
+profil (contenu
+inapproprié)
+Actions Admin Avertissement,
+suspension temporaire,
+bannissement
+Litiges Ouvrir un litige Désaccord → gel
+automatique des fonds
+Arbitrage Admin consulte
+messages/fichiers et
+prend décision finale
+Notifications Alertes en temps réel Candidature, message,
+validation livrable,
+paiement
+Paramétrage Choisir les notifications
+(push, email, aucune)
+Tableau de bord Client Voir annonces,
+candidatures reçues,
+dépenses
+Freelance Voir candidatures
+envoyées, contrats actifs,
+revenus
+Admin KPIs : utilisateurs,
+annonces, commission,
+litiges
+Sécurité Contrôle d’accès Permissions par rôle
+(Client/Freelance/Admin)
+Journal d’activités Logs des actions
+sensibles (connexions,
+paiements)
+Conformité RGPD Export et suppression
+des données utilisateur
+Backup Sauvegarde Automatique
+quotidienne (base de
+données + fichiers)
+Portail public Accueil Présentation plateforme,
+avantages, dernières
+annonces
+Inscription / Connexion Créer un compte ou se
+connecter
+V. Technologie et Outils :
+1.Frontend :
+- Framework : React / Next.js
+2.Back-end :
+- Framework : Django
+- Base de données : MySQL
+VI. Planning prévisionnel :
+Numéro Tâches Délai
+1 Phase de planification 3 jours
+2 Conception Technique 5 jours
+3 Développement des
+fonctionnalités
+30 jours
+4 Tests et corrections des
+erreurs
+7 jours
